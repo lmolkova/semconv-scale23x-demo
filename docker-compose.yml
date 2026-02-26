@@ -1,0 +1,51 @@
+services:
+  s3mock:
+    image: adobe/s3mock
+    environment:
+      - initialBuckets=demo
+    ports:
+      - "9090:9090"
+
+  # aspire:
+  #   image: mcr.microsoft.com/dotnet/aspire-dashboard:latest
+  #   ports:
+  #     - "18888:18888"
+  #     - "18889:18889"
+  #   environment:
+  #     - DOTNET_DASHBOARD_UNSECURED_ALLOW_ANONYMOUS=true
+
+  lgtm:
+    image: grafana/otel-lgtm:latest
+    ports:
+      - "3000:3000"
+    volumes:
+      - lgtm_data:/var/lib/grafana
+
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib:latest
+    command: ["--config=/etc/otel-collector-config.yml"]
+    volumes:
+      - ./otel-collector-config.yml:/etc/otel-collector-config.yml
+    depends_on:
+      - lgtm
+
+  app:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      - STORAGE_BUCKET=demo
+      - STORAGE_ENDPOINT_URL=http://s3mock:9090
+      - AWS_ACCESS_KEY_ID=test
+      - AWS_SECRET_ACCESS_KEY=test
+      - OTEL_SERVICE_NAME=scale23x
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4317
+      - OTEL_SEMCONV_STABILITY_OPT_IN=http
+      - OTEL_METRIC_EXPORT_INTERVAL=10s
+      - OTEL_EXPORTER_OTLP_METRICS_DEFAULT_HISTOGRAM_AGGREGATION=base2_exponential_bucket_histogram
+    depends_on:
+      - s3mock
+      - otel-collector
+
+volumes:
+  lgtm_data:

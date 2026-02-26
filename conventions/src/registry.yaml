@@ -1,0 +1,24 @@
+file_format: definition/2
+attributes:
+  - key: storage.object.key
+    type: string
+    brief: The key of the object in storage bucket
+    stability: development
+    examples: ["c3p0"]
+  - key: storage.bucket
+    type: string
+    brief: The name of the storage bucket
+    stability: development
+    examples: ["orders"]
+metrics:
+  - name: storage.client.operation.duration
+    brief: Duration of storage client operation.
+    unit: s
+    instrument: histogram
+    stability: development
+    attributes:
+      - ref: storage.object.key
+      - ref: storage.bucket
+      - ref: server.address
+      - ref: server.port
+      - ref: error.type

@@ -1,0 +1,20 @@
+templates:
+  - template: attributes.j2
+    filter: semconv_grouped_attributes({"v2":true})
+    application_mode: each
+    file_name: "attributes/{{ ctx.root_namespace | snake_case }}.py"
+  - template: metrics.j2
+    filter: semconv_grouped_metrics({"v2":true})
+    application_mode: each
+    file_name: "metrics/{{ ctx.root_namespace | snake_case }}.py"
+text_maps:
+  py_instrument_to_factory:
+    counter: counter
+    histogram: histogram
+    updowncounter: up_down_counter
+    gauge: observable_gauge
+  py_instrument_to_type:
+    counter: Counter
+    histogram: Histogram
+    updowncounter: UpDownCounter
+    gauge: ObservableGauge

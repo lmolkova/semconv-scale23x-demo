@@ -9,21 +9,28 @@ import boto3
 from botocore.exceptions import ClientError
 from opentelemetry.trace import get_tracer, StatusCode
 from opentelemetry.metrics import get_meter
+from conventions_py.attributes.storage import (
+    STORAGE_BUCKET,
+    STORAGE_OBJECT_KEY,
+    STORAGE_OPERATION_NAME,
+    StorageOperationNameValues,
+)
+from conventions_py.metrics.storage import create_storage_client_operation_duration
+
+
 class ConflictError(Exception):
     pass
+
 
 logger = logging.getLogger(__name__)
 
 tracer = get_tracer(__name__)
 meter = get_meter(__name__)
-operation_duration = meter.create_histogram("storage.client.operation.duration",
-                    unit="s",
-                    description="Duration of storage operations",
-                    explicit_bucket_boundaries_advisory=[ 0.005, 0.01, 0.025, 0.05, 0.075, 0.1, 0.25, 0.5, 0.75, 1, 2.5, 5, 7.5, 10 ])
+operation_duration = create_storage_client_operation_duration(meter)
 class Storage:
     def __init__(self, bucket: str, endpoint_url: Optional[str] = None):
         self.bucket = bucket
-        self.common_attributes = {"storage.bucket": bucket}
+        self.common_attributes = {STORAGE_BUCKET: bucket}
         if endpoint_url:
             parsed = urlparse(endpoint_url)
             if parsed.hostname:
@@ -40,9 +47,9 @@ class Storage:
     def _traced_operation(self, operation: str, key: str):
         start_time = timeit.default_timer()
 
-        attrs = {**self.common_attributes, "storage.operation.name": operation}
-        logger.info(f"{operation}.start", extra={**attrs, "storage.object.key": key})
-        with tracer.start_as_current_span(operation, attributes={**attrs, "storage.object.key": key}) as span:
+        attrs = {**self.common_attributes, STORAGE_OPERATION_NAME: operation}
+        logger.info(f"{operation}.start", extra={**attrs, STORAGE_OBJECT_KEY: key})
+        with tracer.start_as_current_span(operation, attributes={**attrs, STORAGE_OBJECT_KEY: key}) as span:
             try:
                 yield
             except Exception as e:
@@ -55,7 +62,7 @@ class Storage:
                 logger.info(f"{operation}.end")
 
     def upload_bytes(self, data: bytes, key: str, content_type: str = "application/octet-stream") -> None:
-        with self._traced_operation("upload", key):
+        with self._traced_operation(StorageOperationNameValues.UPLOAD.value, key):
             try:
                 self._s3.head_object(Bucket=self.bucket, Key=key)
                 raise ConflictError(f"Object with key '{key}' already exists in bucket '{self.bucket}'")
@@ -85,7 +92,7 @@ class Storage:
                 raise
 
     def download_bytes(self, key: str) -> bytes:
-        with self._traced_operation("download", key):
+        with self._traced_operation(StorageOperationNameValues.DOWNLOAD.value, key):
             found = False
             try:
                 response = self._s3.get_object(Bucket=self.bucket, Key=key)

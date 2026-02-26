@@ -1,0 +1,17 @@
+{%- macro str_or_empty(str) -%}
+{% if str is none %}{{""}}{% else %}{{str}}{% endif %}
+{%- endmacro %}
+
+{%- macro comment_with_prefix(str, prefix) -%}
+{{str | trim(' \n') | comment_with_prefix(prefix) | replace("\\", "\\\\")}}
+{%- endmacro %}
+
+{%- macro import_deprecated(semconv) -%}
+    {%- if (semconv | select("deprecated") | list | count > 0) -%}
+from typing_extensions import deprecated
+    {%- endif -%}
+{%- endmacro-%}
+
+{%- macro deprecated_note_or_empty(attribute) -%}
+{% if attribute is deprecated %}{{ attribute.deprecated.note }}{% else %}{{""}}{% endif %}
+{%- endmacro %}

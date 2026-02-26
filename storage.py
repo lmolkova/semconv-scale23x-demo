@@ -9,13 +9,16 @@ import boto3
 from botocore.exceptions import ClientError
 from opentelemetry.trace import get_tracer, StatusCode
 from opentelemetry.metrics import get_meter
-from conventions_py.attributes.storage import (
+from opentelemetry._logs import get_logger, SeverityNumber
+from conventions_py.storage.attributes import (
     STORAGE_BUCKET,
     STORAGE_OBJECT_KEY,
     STORAGE_OPERATION_NAME,
     StorageOperationNameValues,
 )
-from conventions_py.metrics.storage import create_storage_client_operation_duration
+from conventions_py.storage.metrics import create_storage_client_operation_duration
+from conventions_py.storage.spans import start_storage_client_operation
+from conventions_py.storage.events import emit_storage_client_operation_exception
 
 
 class ConflictError(Exception):
@@ -28,17 +31,26 @@ SCHEMA_URL = "https://localhost:8000/test/me/1.0.0-dev"
 
 tracer = get_tracer(__name__, schema_url=SCHEMA_URL)
 meter = get_meter(__name__, schema_url=SCHEMA_URL)
+otel_logger = get_logger(__name__, schema_url=SCHEMA_URL)
 operation_duration = create_storage_client_operation_duration(meter)
+
+
 class Storage:
     def __init__(self, bucket: str, endpoint_url: Optional[str] = None):
         self.bucket = bucket
-        self.common_attributes = {STORAGE_BUCKET: bucket}
+        self._server_address = None
+        self._server_port = None
         if endpoint_url:
             parsed = urlparse(endpoint_url)
             if parsed.hostname:
-                self.common_attributes["server.address"] = parsed.hostname
+                self._server_address = parsed.hostname
             if parsed.port:
-                self.common_attributes["server.port"] = parsed.port
+                self._server_port = parsed.port
+        self.common_attributes = {
+            STORAGE_BUCKET: bucket,
+            **( {"server.address": self._server_address} if self._server_address else {}),
+            **( {"server.port": self._server_port} if self._server_port else {}),
+        }
         self._s3 = boto3.client(
             "s3",
             region_name="us-east-1",
@@ -49,19 +61,31 @@ class Storage:
     def _traced_operation(self, operation: str, key: str):
         start_time = timeit.default_timer()
 
-        attrs = {**self.common_attributes, STORAGE_OPERATION_NAME: operation}
-        logger.info(f"{operation}.start", extra={**attrs, STORAGE_OBJECT_KEY: key})
-        with tracer.start_as_current_span(operation, attributes={**attrs, STORAGE_OBJECT_KEY: key}) as span:
+        # logger.info(f"{operation}.start", extra={**attrs, STORAGE_OBJECT_KEY: key})
+        error_type = None
+        with start_storage_client_operation(
+            tracer,
+            f"{operation} {self.bucket}",
+            storage_operation_name=operation,
+            storage_bucket=self.bucket,
+            server_address=self._server_address,
+            server_port=self._server_port,
+        ) as span:
+            span.set_attribute(STORAGE_OBJECT_KEY, key)
             try:
                 yield
             except Exception as e:
-                attrs["error.type"] = type(e).__qualname__
+                error_type = type(e).__qualname__
                 span.set_status(StatusCode.ERROR, str(e))
-                logger.warning(f"{operation}.failed", exc_info=e)
+                emit_storage_client_operation_exception(otel_logger, SeverityNumber.WARN, e)
                 raise
             finally:
+                attrs = {**self.common_attributes, STORAGE_OPERATION_NAME: operation}
+                if error_type:
+                    attrs["error.type"] = error_type
+                    span.set_attribute("error.type", error_type)
                 operation_duration.record(timeit.default_timer() - start_time, attributes=attrs)
-                logger.info(f"{operation}.end")
+                # logger.info(f"{operation}.end")
 
     def upload_bytes(self, data: bytes, key: str, content_type: str = "application/octet-stream") -> None:
         with self._traced_operation(StorageOperationNameValues.UPLOAD.value, key):

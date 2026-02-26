@@ -21,6 +21,6 @@ templates:
     filter: >
       semconv_signal("event"; {"v2":true})
       | group_by(.root_namespace)
-      | map({ root_namespace: .[0].root_namespace, entities: . | sort_by(.type) })
+      | map({ root_namespace: .[0].root_namespace, events: . | sort_by(.name) })
     application_mode: each
     file_name: "{{ ctx.root_namespace | snake_case }}/events.md"

@@ -1,6 +1,8 @@
-.PHONY: check-conventions check-compatibility install-prettier markdown-fmt generate-docs generate-python install-ruff lint-python
+.PHONY: check-conventions check-conventions-naming check-conventions-compatibility install-prettier markdown-fmt generate-docs generate-python install-ruff lint-python generate
 
-check-conventions:
+check-conventions: check-conventions-naming check-conventions-compatibility
+
+check-conventions-naming:
 	~/repo/weaver/target/debug/weaver registry check \
 		-p https://github.com/open-telemetry/opentelemetry-weaver-packages.git[policies/check/naming_conventions] \
 		-r ./conventions \
@@ -29,6 +31,8 @@ generate-python: install-ruff
 	ruff format ./conventions_py
 	ruff check ./conventions_py
 
+generate: generate-docs generate-python
+
 install-ruff:
 	pip install ruff
 
@@ -36,7 +40,7 @@ lint-python: install-ruff
 	ruff format .
 	ruff check .
 
-check-compatibility:
+check-conventions-compatibility:
 	~/repo/weaver/target/debug/weaver registry check \
 		-p https://github.com/open-telemetry/opentelemetry-weaver-packages.git[policies/check/backwards-compatibility] \
 		-r ./conventions \

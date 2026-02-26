@@ -46,8 +46,23 @@ spans:
       note: The span name should be in the format of "{storage.operation.name} {storage.bucket}".
     attributes:
       - ref: storage.operation.name
-      - ref: storage.object.key
+        sampling_relevant: true
       - ref: storage.bucket
+        sampling_relevant: true
       - ref: server.address
+        sampling_relevant: true
       - ref: server.port
+        sampling_relevant: true
       - ref: error.type
+      - ref: storage.object.key
+events:
+  - name: storage.client.operation.exception
+    brief: Exception occurred during storage client operation.
+    stability: development
+    attributes:
+      - ref: exception.type
+        requirement_level: required
+      - ref: exception.message
+        requirement_level: required
+      - ref: exception.stacktrace
+        requirement_level: recommended

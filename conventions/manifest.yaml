@@ -1,4 +1,4 @@
-file_format: definition/2
+#file_format: definition/2
 schema_url: https://localhost:8000/test/me/1.0.0-dev
 stability: development
 dependencies:

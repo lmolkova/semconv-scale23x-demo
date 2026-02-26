@@ -13,6 +13,7 @@ install-prettier:
 
 markdown-fmt: install-prettier
 	npx prettier --write "./docs/**/*.md"
+	npx prettier --write "README.md"
 
 generate-docs:
 	~/repo/weaver/target/debug/weaver registry generate \

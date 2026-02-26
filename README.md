@@ -25,7 +25,11 @@ The `weaver` service runs a live schema check and emits validation results as OT
 
 Requires a local [Weaver](https://github.com/open-telemetry/weaver) build at `~/repo/weaver/target/debug/weaver`.
 
-| Target                 | Description                                               |
-| ---------------------- | --------------------------------------------------------- |
-| `make generate`        | Generate docs and Python helpers                          |
+| Target                   | Description                                             |
+| ------------------------ | ------------------------------------------------------- |
+| `make generate`          | Generate docs and Python helpers                        |
 | `make check-conventions` | Validate naming conventions and backwards compatibility |
+
+## TODOs:
+
+- resolition weidness

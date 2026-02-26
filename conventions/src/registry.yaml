@@ -10,6 +10,15 @@ attributes:
     brief: The name of the storage bucket
     stability: development
     examples: ["orders"]
+  - key: storage.operation.name
+    stability: development
+    type:
+      members:
+        - id: upload
+          value: upload
+        - id: download
+          value: download
+    brief: The name of the storage operation.
 metrics:
   - name: storage.client.operation.duration
     brief: Duration of storage client operation.

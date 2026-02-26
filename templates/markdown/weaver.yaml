@@ -2,12 +2,12 @@ templates:
   - template: attributes.md.j2
     filter: semconv_grouped_attributes({"v2":true})
     application_mode: each
-    file_name: "attributes/{{ ctx.root_namespace | snake_case }}.md"
+    file_name: "{{ ctx.root_namespace | snake_case }}/attributes.md"
 
   - template: metrics.md.j2
     filter: semconv_grouped_metrics({"v2":true})
     application_mode: each
-    file_name: "metrics/{{ ctx.root_namespace | snake_case }}.md"
+    file_name: "{{ ctx.root_namespace | snake_case }}/metrics.md"
 
   - template: spans.md.j2
     filter: >
@@ -15,7 +15,7 @@ templates:
       | group_by(.root_namespace)
       | map({ root_namespace: .[0].root_namespace, spans: . | sort_by(.type) })
     application_mode: each
-    file_name: "spans/{{ ctx.root_namespace | snake_case }}.md"
+    file_name: "{{ ctx.root_namespace | snake_case }}/spans.md"
 
   - template: events.md.j2
     filter: >
@@ -23,12 +23,4 @@ templates:
       | group_by(.root_namespace)
       | map({ root_namespace: .[0].root_namespace, entities: . | sort_by(.type) })
     application_mode: each
-    file_name: "events/{{ ctx.root_namespace | snake_case }}.md"
-
-  - template: entities.md.j2
-    filter: >
-      semconv_signal("entity"; {"v2":true})
-      | group_by(.root_namespace)
-      | map({ root_namespace: .[0].root_namespace, entities: . | sort_by(.type) })
-    application_mode: single
-    file_name: "entities.md"
+    file_name: "{{ ctx.root_namespace | snake_case }}/events.md"

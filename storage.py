@@ -24,8 +24,10 @@ class ConflictError(Exception):
 
 logger = logging.getLogger(__name__)
 
-tracer = get_tracer(__name__)
-meter = get_meter(__name__)
+SCHEMA_URL = "https://localhost:8000/test/me/1.0.0-dev"
+
+tracer = get_tracer(__name__, schema_url=SCHEMA_URL)
+meter = get_meter(__name__, schema_url=SCHEMA_URL)
 operation_duration = create_storage_client_operation_duration(meter)
 class Storage:
     def __init__(self, bucket: str, endpoint_url: Optional[str] = None):

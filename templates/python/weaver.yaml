@@ -2,11 +2,11 @@ templates:
   - template: attributes.j2
     filter: semconv_grouped_attributes({"v2":true})
     application_mode: each
-    file_name: "attributes/{{ ctx.root_namespace | snake_case }}.py"
+    file_name: "{{ ctx.root_namespace | snake_case }}/attributes.py"
   - template: metrics.j2
     filter: semconv_grouped_metrics({"v2":true})
     application_mode: each
-    file_name: "metrics/{{ ctx.root_namespace | snake_case }}.py"
+    file_name: "{{ ctx.root_namespace | snake_case }}/metrics.py"
 text_maps:
   py_instrument_to_factory:
     counter: counter

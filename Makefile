@@ -3,7 +3,7 @@
 check-conventions:
 	~/repo/weaver/target/debug/weaver registry check \
 		-p https://github.com/open-telemetry/opentelemetry-weaver-packages.git[policies/check/naming_conventions] \
-		-r ./conventions/src \
+		-r ./conventions \
 		--v2
 
 install-prettier:
@@ -14,7 +14,7 @@ markdown-fmt: install-prettier
 
 generate-docs:
 	~/repo/weaver/target/debug/weaver registry generate \
-		-r ./conventions/src \
+		-r ./conventions \
 		markdown \
 		--v2 \
 		./docs
@@ -22,7 +22,7 @@ generate-docs:
 
 generate-python: install-ruff
 	~/repo/weaver/target/debug/weaver registry generate \
-		-r ./conventions/src \
+		-r ./conventions \
 		python \
 		./conventions_py \
 		--v2
@@ -39,6 +39,6 @@ lint-python: install-ruff
 check-compatibility:
 	~/repo/weaver/target/debug/weaver registry check \
 		-p https://github.com/open-telemetry/opentelemetry-weaver-packages.git[policies/check/backwards-compatibility] \
-		-r ./conventions/src \
-		--baseline-registry https://github.com/lmolkova/semconv-scale23x-demo.git[conventions/src] \
+		-r ./conventions \
+		--baseline-registry https://github.com/lmolkova/semconv-scale23x-demo.git[conventions] \
 		--v2

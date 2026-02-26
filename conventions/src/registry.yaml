@@ -26,6 +26,26 @@ metrics:
     instrument: histogram
     stability: development
     attributes:
+      - ref: storage.operation.name
+        requirement_level: required
+      - ref: storage.bucket
+        requirement_level: required
+      - ref: server.address
+        requirement_level: required
+      - ref: server.port
+        requirement_level: required
+      - ref: error.type
+        requirement_level:
+          conditionally_required: if and only if operation has failed
+spans:
+  - type: storage.client.operation
+    brief: Storage client operation.
+    stability: development
+    kind: client
+    name:
+      note: The span name should be in the format of "{storage.operation.name} {storage.bucket}".
+    attributes:
+      - ref: storage.operation.name
       - ref: storage.object.key
       - ref: storage.bucket
       - ref: server.address

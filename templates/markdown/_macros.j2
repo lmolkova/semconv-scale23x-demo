@@ -13,6 +13,14 @@
 {%- if attr.type is mapping %}Enum{% else %}`{{ attr.type }}`{% endif -%}
 {%- endmacro -%}
 
+{#- Renders an attribute table for any signal -#}
+{%- macro attribute_table(attributes) -%}
+| Attribute | Type | Requirement Level | Description |
+|-----------|------|-------------------|-------------|
+{% for attr in attributes | attribute_sort %}| `{{ attr.key }}` | {{ attribute_type(attr) }} | {{ requirement_level(attr.requirement_level) }} | {{ brief_inline(attr.brief) }} |
+{% endfor %}
+{%- endmacro -%}
+
 {#- Renders a stability badge, or a deprecated badge if deprecated -#}
 {%- macro stability_badge(stability, deprecated) -%}
 {%- if deprecated %}![Deprecated](https://img.shields.io/badge/-deprecated-red){% elif stability == "stable" %}![Stable](https://img.shields.io/badge/-stable-lightgreen){% elif stability == "release_candidate" %}![Release Candidate](https://img.shields.io/badge/-rc-mediumorchid){% else %}![Development](https://img.shields.io/badge/-development-blue){% endif -%}

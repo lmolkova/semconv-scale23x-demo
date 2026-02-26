@@ -21,6 +21,14 @@ services:
     volumes:
       - lgtm_data:/var/lib/grafana
 
+  weaver:
+    image: otel/weaver:main
+    command: ["registry", "live-check", "--inactivity-timeout=300", "--emit-otlp-logs", "--otlp-logs-endpoint=http://otel-collector:4318", "--v2", "--quiet", "--no-stream", "-r=/registry", "--include-unreferenced"]
+    volumes:
+      - ./conventions/src:/registry
+    depends_on:
+      - otel-collector
+
   otel-collector:
     image: otel/opentelemetry-collector-contrib:latest
     command: ["--config=/etc/otel-collector-config.yml"]

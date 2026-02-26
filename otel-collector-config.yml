@@ -3,10 +3,27 @@ receivers:
     protocols:
       grpc:
         endpoint: 0.0.0.0:4317
+  otlp/weaver:
+    protocols:
+      grpc:
+        endpoint: 0.0.0.0:4318
+
+processors:
+  filter/weaver-findings:
+    logs:
+      log_record:
+        - 'severity_number < SEVERITY_NUMBER_WARN'
+        - 'attributes["weaver.finding.id"] == "not_stable"'
+        - 'attributes["weaver.finding.context.attribute_name"] == "exception.escaped"'
 
 exporters:
   otlp:
     endpoint: lgtm:4317
+    tls:
+      insecure: true
+  otlp/weaver:
+    endpoint: weaver:4317
+    compression: none # TODO: support gzip compression in weaver
     tls:
       insecure: true
 
@@ -14,10 +31,14 @@ service:
   pipelines:
     traces:
       receivers: [otlp]
-      exporters: [otlp]
+      exporters: [otlp, otlp/weaver]
     metrics:
       receivers: [otlp]
-      exporters: [otlp]
+      exporters: [otlp, otlp/weaver]
     logs:
       receivers: [otlp]
+      exporters: [otlp, otlp/weaver]
+    logs/weaver-findings:
+      receivers: [otlp/weaver]
+      processors: [filter/weaver-findings]
       exporters: [otlp]

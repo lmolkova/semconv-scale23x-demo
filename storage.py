@@ -3,6 +3,7 @@ from contextlib import contextmanager
 import random
 from time import sleep
 import timeit
+from typing import Optional
 from urllib.parse import urlparse
 import boto3
 from botocore.exceptions import ClientError
@@ -34,11 +35,11 @@ active_operations = StorageClientOperationActive(meter)
 
 
 class Storage:
-    def __init__(self, bucket: str, endpoint_url: str):
+    def __init__(self, bucket: str, endpoint_url: Optional[str]):
         self.bucket = bucket
-        parsed = urlparse(endpoint_url)
-        self._server_address = str(parsed.hostname)  # type: str
-        self._server_port = parsed.port or 0 # type: int
+        parsed = urlparse(endpoint_url) if endpoint_url else None
+        self._server_address = parsed.hostname if parsed else None
+        self._server_port = parsed.port if parsed else None
 
         self._s3 = boto3.client(
             "s3",
@@ -49,8 +50,6 @@ class Storage:
     @contextmanager
     def _instrument_operation(self, operation: str, key: str):
         start_time = timeit.default_timer()
-
-        # logger.info(f"{operation}.start", extra={**attrs, STORAGE_OBJECT_KEY: key})
         active_operations.add(
             1,
             server_address=self._server_address,
@@ -95,7 +94,6 @@ class Storage:
                     storage_bucket=self.bucket,
                     storage_operation_name=operation,
                 )
-                # logger.info(f"{operation}.end")
 
     def upload_bytes(self, data: bytes, key: str, content_type: str = "application/octet-stream") -> None:
         with self._instrument_operation(StorageOperationNameValues.UPLOAD.value, key):

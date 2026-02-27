@@ -17,7 +17,7 @@ markdown-fmt: install-prettier
 
 generate-docs:
 	~/repo/weaver/target/debug/weaver registry generate \
-		-r ./conventions \
+		--registry ./conventions \
 		markdown \
 		--v2 \
 		./docs
@@ -25,10 +25,10 @@ generate-docs:
 
 generate-python: install-ruff
 	~/repo/weaver/target/debug/weaver registry generate \
-		-r ./conventions \
+		--registry ./conventions \
 		python \
-		./conventions_py \
-		--v2
+		--v2 \
+		./conventions_py
 	ruff format ./conventions_py
 	ruff check ./conventions_py
 

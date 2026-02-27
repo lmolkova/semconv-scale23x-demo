@@ -34,9 +34,9 @@ metrics:
       - ref: storage.bucket
         requirement_level: required
       - ref: server.address
-        requirement_level: required
+        requirement_level: recommended
       - ref: server.port
-        requirement_level: required
+        requirement_level: recommended
       - ref: error.type
         requirement_level:
           conditionally_required: if and only if operation has failed
@@ -54,9 +54,9 @@ metrics:
       - ref: storage.bucket
         requirement_level: required
       - ref: server.address
-        requirement_level: required
+        requirement_level: recommended
       - ref: server.port
-        requirement_level: required
+        requirement_level: recommended
 spans:
   - type: storage.client.operation
     brief: Storage client operation.

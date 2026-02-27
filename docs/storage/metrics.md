@@ -14,10 +14,10 @@ Number of active storage client operations.
 
 | Attribute                | Type     | Requirement Level | Description                        |
 | ------------------------ | -------- | ----------------- | ---------------------------------- |
-| `server.address`         | `string` | Required          | Name of the database host.         |
-| `server.port`            | `int`    | Required          | Server port number.                |
 | `storage.bucket`         | `string` | Required          | The name of the storage bucket     |
 | `storage.operation.name` | Enum     | Required          | The name of the storage operation. |
+| `server.address`         | `string` | Recommended       | Name of the database host.         |
+| `server.port`            | `int`    | Recommended       | Server port number.                |
 
 ## `storage.client.operation.duration` ![Development](https://img.shields.io/badge/-development-blue)
 
@@ -31,8 +31,8 @@ Duration of storage client operation.
 
 | Attribute                | Type     | Requirement Level                                            | Description                        |
 | ------------------------ | -------- | ------------------------------------------------------------ | ---------------------------------- |
-| `server.address`         | `string` | Required                                                     | Name of the database host.         |
-| `server.port`            | `int`    | Required                                                     | Server port number.                |
 | `storage.bucket`         | `string` | Required                                                     | The name of the storage bucket     |
 | `storage.operation.name` | Enum     | Required                                                     | The name of the storage operation. |
 | `error.type`             | Enum     | Conditionally Required - if and only if operation has failed | The full name of exception type.   |
+| `server.address`         | `string` | Recommended                                                  | Name of the database host.         |
+| `server.port`            | `int`    | Recommended                                                  | Server port number.                |

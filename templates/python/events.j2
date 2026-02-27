@@ -13,6 +13,7 @@ from typing import Optional
 {%- if ns.has_exception %}
 import traceback
 {%- endif %}
+{{c.import_deprecated(ctx.events)}}
 
 
 {% for event in ctx.events %}
@@ -31,6 +32,9 @@ import traceback
 from .attributes import {% endif %}{{ attr.key | screaming_snake_case }}{% if not loop.last %}, {% endif %}
 {%- endfor %}
 
+{%- if event is deprecated %}
+@deprecated("{{event.name}} is deprecated{% if event.deprecated.note %} - {{event.deprecated.note | comment(format="python")}}{% endif %}")
+{%- endif %}
 def emit_{{ func_name }}{% if not is_exception_event %}_event{% endif %}(
     logger: Logger,
     severity_number: SeverityNumber,

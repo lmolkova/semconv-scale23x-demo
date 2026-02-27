@@ -6,7 +6,7 @@ receivers:
   otlp/weaver:
     protocols:
       grpc:
-        endpoint: 0.0.0.0:4318
+        endpoint: 0.0.0.0:5317
 
 processors:
   filter/weaver-findings:
@@ -15,7 +15,7 @@ processors:
         - 'severity_number < SEVERITY_NUMBER_WARN'
         - 'attributes["weaver.finding.id"] == "not_stable"'
         - 'attributes["weaver.finding.context.attribute_name"] == "exception.escaped"'
-
+        - 'attributes["weaver.finding.context.attribute_name"] == "event.name"'
 exporters:
   otlp:
     endpoint: lgtm:4317

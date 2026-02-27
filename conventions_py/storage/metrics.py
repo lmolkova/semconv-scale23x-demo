@@ -1,5 +1,6 @@
 from typing import Final, Optional
 from opentelemetry.metrics import Meter
+
 from .attributes import STORAGE_BUCKET, STORAGE_OPERATION_NAME
 
 STORAGE_CLIENT_OPERATION_ACTIVE: Final = "storage.client.operation.active"
@@ -27,10 +28,10 @@ class StorageClientOperationActive:
     def add(
         self,
         amount: int,
-        server_address: str,
-        server_port: int,
         storage_bucket: str,
         storage_operation_name: str,
+        server_address: Optional[str] = None,
+        server_port: Optional[int] = None,
     ) -> None:
         """Number of active storage client operations."""
         attrs = {
@@ -69,11 +70,11 @@ class StorageClientOperationDuration:
     def record(
         self,
         amount: float,
-        server_address: str,
-        server_port: int,
         storage_bucket: str,
         storage_operation_name: str,
         error_type: Optional[str] = None,
+        server_address: Optional[str] = None,
+        server_port: Optional[int] = None,
     ) -> None:
         """Duration of storage client operation."""
         attrs = {

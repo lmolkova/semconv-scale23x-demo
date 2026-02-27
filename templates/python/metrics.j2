@@ -32,6 +32,7 @@ CallbackT = Union[
     Generator[Iterable[Observation], CallbackOptions, None],
 ]
 {%- endif %}
+{{c.import_deprecated(ctx.metrics)}}
 
 {%- set imported = namespace(attrs=[]) %}
 {%- for metric in ctx.metrics %}
@@ -57,7 +58,9 @@ from .attributes import {{ imported.attrs | join(", ") }}
 
 {%- set class_name = metric.name | pascal_case %}
 {%- set metric_attrs = metric.attributes | list %}
-
+{%- if metric is deprecated %}
+@deprecated("{{metric.name}} is deprecated{% if metric.deprecated.note %} - {{metric.deprecated.note | comment(format="python")}}{% endif %}")
+{%- endif %}
 class {{class_name}}:
     {%- set doc_string = write_docstring(metric) %}
     {%- if doc_string %}

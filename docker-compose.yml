@@ -6,37 +6,6 @@ services:
     ports:
       - "9090:9090"
 
-  # aspire:
-  #   image: mcr.microsoft.com/dotnet/aspire-dashboard:latest
-  #   ports:
-  #     - "18888:18888"
-  #     - "18889:18889"
-  #   environment:
-  #     - DOTNET_DASHBOARD_UNSECURED_ALLOW_ANONYMOUS=true
-
-  lgtm:
-    image: grafana/otel-lgtm:latest
-    ports:
-      - "3000:3000"
-    volumes:
-      - lgtm_data:/var/lib/grafana
-
-  weaver:
-    image: otel/weaver:main
-    command: ["registry", "live-check", "--inactivity-timeout=300", "--emit-otlp-logs", "--otlp-logs-endpoint=http://otel-collector:4318", "--v2", "--quiet", "--no-stream", "-r=/registry", "--include-unreferenced"]
-    volumes:
-      - ./conventions/src:/registry
-    depends_on:
-      - otel-collector
-
-  otel-collector:
-    image: otel/opentelemetry-collector-contrib:latest
-    command: ["--config=/etc/otel-collector-config.yml"]
-    volumes:
-      - ./otel-collector-config.yml:/etc/otel-collector-config.yml
-    depends_on:
-      - lgtm
-
   app:
     build: .
     ports:
@@ -54,6 +23,30 @@ services:
     depends_on:
       - s3mock
       - otel-collector
+
+  lgtm:
+    image: grafana/otel-lgtm:latest
+    ports:
+      - "3000:3000"
+    volumes:
+      - lgtm_data:/var/lib/grafana
+
+  weaver:
+    image: otel/weaver:main
+    command: ["registry", "live-check", "-r=/registry", "--emit-otlp-logs", "--otlp-logs-endpoint=http://otel-collector:5317", "--v2", "--output==none", "--include-unreferenced",  "--inactivity-timeout=0"]
+    volumes:
+      - ./conventions:/registry
+    depends_on:
+      - lgtm
+
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib:latest
+    command: ["--config=/etc/otel-collector-config.yml"]
+    volumes:
+      - ./otel-collector-config.yml:/etc/otel-collector-config.yml
+    depends_on:
+      - lgtm
+      - weaver
 
 volumes:
   lgtm_data:

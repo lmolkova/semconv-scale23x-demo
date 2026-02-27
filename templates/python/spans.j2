@@ -2,6 +2,7 @@
 from contextlib import AbstractContextManager
 from typing import Optional
 from opentelemetry.trace import Tracer, Span, SpanKind
+{{c.import_deprecated(ctx.spans)}}
 
 
 {% for span in ctx.spans %}
@@ -12,6 +13,9 @@ from opentelemetry.trace import Tracer, Span, SpanKind
 from .attributes import {% endif %}{{ attr.key | screaming_snake_case }}{% if not loop.last %}, {% endif %}
 {%- endfor %}
 
+{%- if span is deprecated %}
+@deprecated("{{span.type}} is deprecated{% if span.deprecated.note %} - {{span.deprecated.note | comment(format="python")}}{% endif %}")
+{%- endif %}
 def start_{{ func_name }}(
     tracer: Tracer,
     name: str,

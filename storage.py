@@ -3,7 +3,6 @@ from contextlib import contextmanager
 import random
 from time import sleep
 import timeit
-from typing import Optional
 from urllib.parse import urlparse
 import boto3
 from botocore.exceptions import ClientError
@@ -11,10 +10,10 @@ from opentelemetry.trace import get_tracer, StatusCode
 from opentelemetry.metrics import get_meter
 from opentelemetry._logs import get_logger, SeverityNumber
 from conventions_py.storage.attributes import (
-    STORAGE_BUCKET,
     STORAGE_OBJECT_KEY,
     StorageOperationNameValues,
 )
+from conventions_py import SCHEMA_URL
 from conventions_py.storage.metrics import StorageClientOperationActive, StorageClientOperationDuration
 from conventions_py.storage.spans import start_storage_client_operation
 from conventions_py.storage.events import emit_storage_client_operation_exception
@@ -26,7 +25,6 @@ class ConflictError(Exception):
 
 logger = logging.getLogger(__name__)
 
-SCHEMA_URL = "https://localhost:8000/test/me/1.0.0-dev"
 
 tracer = get_tracer(__name__, schema_url=SCHEMA_URL)
 meter = get_meter(__name__, schema_url=SCHEMA_URL)

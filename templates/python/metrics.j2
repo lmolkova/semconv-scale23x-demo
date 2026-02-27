@@ -75,13 +75,13 @@ class {{class_name}}:
         )
     {%- else %}
     def __init__(self, meter: Meter) -> None:
-        self._instrument = meter.create_{{ metric.instrument | map_text("py_instrument_to_factory")}}(
+        self._instrument = meter.create_{{ metric.instrument | map_text("py_instrument_factory")}}(
             name={{ const_name }},
             description="{{ metric.brief | trim | replace('\n', ' ') if metric.brief else "" }}",
             unit="{{ metric.unit }}",
         )
 
-    def {{ metric.instrument | map_text("py_instrument_to_method") }}(
+    def {{ metric.instrument | map_text("py_instrument_method") }}(
         self,
         amount: {{ metric.annotations.code_generation.metric_value_type | map_text("py_metric_value_type", "float") }},
 {%- for attr in metric_attrs | required %}
@@ -99,6 +99,6 @@ class {{class_name}}:
             {{ c.attr_key(attr) | trim }}: {{ attr.key | replace(".", "_") }},
 {%- endfor %}
         }
-        self._instrument.{{ metric.instrument | map_text("py_instrument_to_method") }}(amount, attributes={k: v for k, v in attrs.items() if v is not None})
+        self._instrument.{{ metric.instrument | map_text("py_instrument_method") }}(amount, attributes={k: v for k, v in attrs.items() if v is not None})
     {%- endif %}
 {% endfor %}

@@ -1,4 +1,7 @@
 templates:
+  - template: schema_init.j2
+    application_mode: single
+    file_name: "__init__.py"
   - template: init.j2
     filter: semconv_grouped_attributes({"v2":true})
     application_mode: each
@@ -37,23 +40,23 @@ text_maps:
     int: int
     double: float
     boolean: bool
-  span_kind_to_py:
+  py_span_kind:
     internal: SpanKind.INTERNAL
     server: SpanKind.SERVER
     client: SpanKind.CLIENT
     producer: SpanKind.PRODUCER
     consumer: SpanKind.CONSUMER
-  py_instrument_to_factory:
+  py_instrument_factory:
     counter: counter
     histogram: histogram
     updowncounter: up_down_counter
     gauge: observable_gauge
-  py_instrument_to_type:
+  py_instrument_type:
     counter: Counter
     histogram: Histogram
     updowncounter: UpDownCounter
     gauge: ObservableGauge
-  py_instrument_to_method:
+  py_instrument_method:
     counter: add
     histogram: record
     updowncounter: add

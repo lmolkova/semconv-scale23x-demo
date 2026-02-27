@@ -32,7 +32,7 @@ def start_{{ func_name }}(
     }
     return tracer.start_as_current_span(
         name,
-        kind={{ span.kind | map_text("span_kind_to_py") }},
+        kind={{ span.kind | map_text("py_span_kind") }},
         attributes={k: v for k, v in attrs.items() if v is not None},
     )
 {% endfor %}

@@ -12,9 +12,9 @@ This document describes the `{{ ctx.root_namespace }}` attributes.
 
 {% if attribute.examples %}**Examples**: `{{ attribute.examples | join("`, `") }}`{% endif %}
 
-**Type**: {% if attribute.type is mapping %}enum{% else %}`{{ attribute.type }}`{% endif %}
+**Type**: {% if attribute is enum %}enum{% else %}`{{ attribute.type }}`{% endif %}
 
-{% if attribute.type is mapping and attribute.type.members %}
+{% if attribute is enum and attribute.type.members %}
 
 | Value | Description |
 |-------|-------------|

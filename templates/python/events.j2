@@ -2,13 +2,9 @@
 from opentelemetry._logs import Logger, SeverityNumber
 {%- set ns = namespace(has_exception=false, has_optional=false) %}
 {%- for event in ctx.events %}
-{%- if event.name.endswith("exception") %}
-{%- set ns.has_exception = true %}
-{%- endif %}
-{%- for attr in event.attributes if not attr.key.startswith("exception.") %}
-{%- if attr.requirement_level != "required" %}
+{%- if event.name.endswith("exception") %}{%- set ns.has_exception = true %}{%- endif %}
+{%- for attr in event.attributes | not_required if not attr.key.startswith("exception.") %}
 {%- set ns.has_optional = true %}
-{%- endif %}
 {%- endfor %}
 {%- endfor %}
 {%- if ns.has_optional %}
@@ -41,16 +37,14 @@ def emit_{{ func_name }}{% if not is_exception_event %}_event{% endif %}(
 {%- if is_exception_event and event_ns.exception_attrs %}
     exception: BaseException,
 {%- endif %}
-{%- for attr in event_ns.other_attrs %}
-{%- set param = attr.key | replace(".", "_") %}
-{%- if attr.requirement_level == "required" %}
-    {{ param }}: {{ c.py_type(attr) | trim }},
-{%- else %}
-    {{ param }}: Optional[{{ c.py_type(attr) | trim }}] = None,
-{%- endif %}
+{%- for attr in event_ns.other_attrs | required %}
+    {{ attr.key | replace(".", "_") }}: {{ attr.type | map_text("py_attr_type", "str") }},
+{%- endfor %}
+{%- for attr in event_ns.other_attrs | not_required %}
+    {{ attr.key | replace(".", "_") }}: Optional[{{ attr.type | map_text("py_attr_type", "str") }}] = None,
 {%- endfor %}
 ) -> None:
-    {%- if c.str_or_empty(event.brief) | length %}
+    {%- if event.brief %}
     """{{ event.brief | trim }}"""
     {%- endif %}
 {%- if is_exception_event and event_ns.exception_attrs %}
@@ -69,8 +63,7 @@ def emit_{{ func_name }}{% if not is_exception_event %}_event{% endif %}(
 {%- endfor %}
 {%- endif %}
 {%- for attr in event_ns.other_attrs %}
-{%- set param = attr.key | replace(".", "_") %}
-        {{ c.attr_key(attr) | trim }}: {{ param }},
+        {{ c.attr_key(attr) | trim }}: {{ attr.key | replace(".", "_") }},
 {%- endfor %}
         "event.name": "{{ event.name }}",
     }

@@ -7,7 +7,6 @@ from opentelemetry.trace import Tracer, Span, SpanKind
 {% for span in ctx.spans %}
 {%- set func_name = span.type | replace(".", "_") %}
 {%- set sampling_attrs = span.attributes | selectattr("sampling_relevant") | list %}
-{%- set has_local = [] %}
 {%- for attr in sampling_attrs if attr.key | split(".") | first == ctx.root_namespace %}
 {%- if loop.first %}
 from .attributes import {% endif %}{{ attr.key | screaming_snake_case }}{% if not loop.last %}, {% endif %}
@@ -16,22 +15,19 @@ from .attributes import {% endif %}{{ attr.key | screaming_snake_case }}{% if no
 def start_{{ func_name }}(
     tracer: Tracer,
     name: str,
-{%- for attr in sampling_attrs %}
-{%- set param = attr.key | replace(".", "_") %}
-{%- if attr.requirement_level == "required" %}
-    {{ param }}: {{ c.py_type(attr) | trim }},
-{%- else %}
-    {{ param }}: Optional[{{ c.py_type(attr) | trim }}] = None,
-{%- endif %}
+{%- for attr in sampling_attrs | required %}
+    {{ attr.key | replace(".", "_") }}: {{ attr.type | map_text("py_attr_type", "str") }},
+{%- endfor %}
+{%- for attr in sampling_attrs | not_required %}
+    {{ attr.key | replace(".", "_") }}: Optional[{{ attr.type | map_text("py_attr_type", "str") }}] = None,
 {%- endfor %}
 ) -> AbstractContextManager[Span]:
-    {%- if c.str_or_empty(span.brief) | length %}
+    {%- if span.brief %}
     """{{ span.brief | trim }}"""
     {%- endif %}
     attrs = {
 {%- for attr in sampling_attrs %}
-{%- set param = attr.key | replace(".", "_") %}
-        {{ c.attr_key(attr) | trim }}: {{ param }},
+        {{ c.attr_key(attr) | trim }}: {{ attr.key | replace(".", "_") }},
 {%- endfor %}
     }
     return tracer.start_as_current_span(

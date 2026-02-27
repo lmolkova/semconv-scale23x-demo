@@ -25,6 +25,9 @@ metrics:
     unit: s
     instrument: histogram
     stability: development
+    annotations:
+      code_generation:
+        metric_value_type: double
     attributes:
       - ref: storage.operation.name
         requirement_level: required
@@ -37,6 +40,23 @@ metrics:
       - ref: error.type
         requirement_level:
           conditionally_required: if and only if operation has failed
+  - name: storage.client.operation.active
+    brief: Number of active storage client operations.
+    instrument: updowncounter
+    stability: development
+    unit: "{operation}"
+    annotations:
+      code_generation:
+        metric_value_type: int
+    attributes:
+      - ref: storage.operation.name
+        requirement_level: required
+      - ref: storage.bucket
+        requirement_level: required
+      - ref: server.address
+        requirement_level: required
+      - ref: server.port
+        requirement_level: required
 spans:
   - type: storage.client.operation
     brief: Storage client operation.

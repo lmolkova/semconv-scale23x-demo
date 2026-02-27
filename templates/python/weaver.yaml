@@ -25,7 +25,18 @@ templates:
       | map({ root_namespace: .[0].root_namespace, events: . })
     application_mode: each
     file_name: "{{ ctx.root_namespace | snake_case }}/events.py"
+comment_formats:
+  python:
+    format: markdown
+    trim: true
+    escape_backslashes: true
+    escape_square_brackets: false
+
 text_maps:
+  py_attr_type:
+    int: int
+    double: float
+    boolean: bool
   span_kind_to_py:
     internal: SpanKind.INTERNAL
     server: SpanKind.SERVER
@@ -42,3 +53,11 @@ text_maps:
     histogram: Histogram
     updowncounter: UpDownCounter
     gauge: ObservableGauge
+  py_instrument_to_method:
+    counter: add
+    histogram: record
+    updowncounter: add
+    gauge: set
+  py_metric_value_type:
+    int: int
+    double: float

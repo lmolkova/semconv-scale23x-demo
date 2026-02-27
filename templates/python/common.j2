@@ -1,12 +1,3 @@
-{%- macro py_type(attr) -%}
-{%- if attr.type is mapping %}str
-{%- elif attr.type == "int" %}int
-{%- elif attr.type == "double" %}float
-{%- elif attr.type == "boolean" %}bool
-{%- else %}str
-{%- endif -%}
-{%- endmacro -%}
-
 {%- macro attr_key(attr) -%}
 {%- if attr.key | split(".") | first == ctx.root_namespace -%}
 {{ attr.key | screaming_snake_case }}
@@ -15,20 +6,9 @@
 {%- endif -%}
 {%- endmacro -%}
 
-{%- macro str_or_empty(str) -%}
-{% if str is none %}{{""}}{% else %}{{str}}{% endif %}
-{%- endmacro %}
-
-{%- macro comment_with_prefix(str, prefix) -%}
-{{str | trim(' \n') | comment_with_prefix(prefix) | replace("\\", "\\\\")}}
-{%- endmacro %}
-
 {%- macro import_deprecated(semconv) -%}
     {%- if (semconv | select("deprecated") | list | count > 0) -%}
 from typing_extensions import deprecated
     {%- endif -%}
 {%- endmacro-%}
 
-{%- macro deprecated_note_or_empty(attribute) -%}
-{% if attribute is deprecated %}{{ attribute.deprecated.note }}{% else %}{{""}}{% endif %}
-{%- endmacro %}

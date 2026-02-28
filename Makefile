@@ -1,11 +1,18 @@
 .PHONY: check-conventions check-conventions-naming check-conventions-compatibility install-prettier markdown-fmt generate-docs generate-python install-ruff lint-python generate
 
-check-conventions: check-conventions-naming check-conventions-compatibility
+check-conventions:
+	~/repo/weaver/target/debug/weaver registry check \
+		--policy https://github.com/open-telemetry/opentelemetry-weaver-packages.git[policies/check/naming_conventions] \
+		--policy https://github.com/open-telemetry/opentelemetry-weaver-packages.git[policies/check/backwards-compatibility] \
+		--policy ./policies \
+		--registry ./conventions \
+		--baseline-registry https://github.com/lmolkova/semconv-scale23x-demo.git[conventions] \
+		--v2
 
 check-conventions-naming:
 	~/repo/weaver/target/debug/weaver registry check \
-		-p https://github.com/open-telemetry/opentelemetry-weaver-packages.git[policies/check/naming_conventions] \
-		-r ./conventions \
+		--policy https://github.com/open-telemetry/opentelemetry-weaver-packages.git[policies/check/naming_conventions] \
+		--registry ./conventions \
 		--v2
 
 install-prettier:
@@ -43,7 +50,7 @@ lint-python: install-ruff
 
 check-conventions-compatibility:
 	~/repo/weaver/target/debug/weaver registry check \
-		-p https://github.com/open-telemetry/opentelemetry-weaver-packages.git[policies/check/backwards-compatibility] \
-		-r ./conventions \
+		--policy https://github.com/open-telemetry/opentelemetry-weaver-packages.git[policies/check/backwards-compatibility] \
+		--registry ./conventions \
 		--baseline-registry https://github.com/lmolkova/semconv-scale23x-demo.git[conventions] \
 		--v2

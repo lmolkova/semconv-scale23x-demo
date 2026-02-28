@@ -33,7 +33,16 @@ services:
 
   weaver:
     image: otel/weaver:main
-    command: ["registry", "live-check", "-r=/registry", "--emit-otlp-logs", "--otlp-logs-endpoint=http://otel-collector:5317", "--v2", "--output==none", "--include-unreferenced",  "--inactivity-timeout=0"]
+    command:
+      - registry
+      - live-check
+      - -r=/registry
+      - --emit-otlp-logs
+      - --otlp-logs-endpoint=http://otel-collector:5317
+      - --v2
+      - --output==none
+      - --include-unreferenced
+      - --inactivity-timeout=0
     volumes:
       - ./conventions:/registry
     depends_on:

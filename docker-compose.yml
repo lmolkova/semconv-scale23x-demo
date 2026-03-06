@@ -45,6 +45,7 @@ services:
       - --inactivity-timeout=0
     volumes:
       - ./conventions:/registry
+      - ~/repo/semantic-conventions:/semconv
     depends_on:
       - lgtm
 

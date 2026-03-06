@@ -4,7 +4,7 @@ Demo for a conference talk on working with [OpenTelemetry Semantic Conventions](
 
 The demo defines custom storage conventions (`conventions/src`) and uses Weaver to:
 
-- generate Python instrumentation helpers (`conventions_py/`)
+- generate Python instrumentation helpers (`_generated/`)
 - generate Markdown documentation (`docs/`)
 - validate naming conventions and backwards compatibility
 

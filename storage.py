@@ -10,14 +10,14 @@ from botocore.exceptions import ClientError
 from opentelemetry.trace import get_tracer, StatusCode
 from opentelemetry.metrics import get_meter
 from opentelemetry._logs import get_logger, SeverityNumber
-from conventions_py.storage.attributes import (
+from _generated.storage.attributes import (
     STORAGE_OBJECT_KEY,
     StorageOperationNameValues,
 )
-from conventions_py import SCHEMA_URL
-from conventions_py.storage.metrics import StorageClientOperationActive, StorageClientOperationDuration
-from conventions_py.storage.spans import start_storage_client_operation
-from conventions_py.storage.events import emit_storage_client_operation_exception
+from _generated import SCHEMA_URL
+from _generated.storage.metrics import StorageClientOperationActive, StorageClientOperationDuration
+from _generated.storage.spans import start_storage_client_operation
+from _generated.storage.events import emit_storage_client_operation_exception
 
 
 class ConflictError(Exception):

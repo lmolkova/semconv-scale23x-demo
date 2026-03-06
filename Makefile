@@ -35,9 +35,9 @@ generate-python: install-ruff
 		--registry ./conventions \
 		python \
 		--v2 \
-		./conventions_py
-	ruff format ./conventions_py
-	ruff check ./conventions_py
+		./_generated
+	ruff format ./_generated
+	ruff check ./_generated
 
 generate: generate-docs generate-python
 

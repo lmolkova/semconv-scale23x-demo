@@ -67,7 +67,7 @@ class Storage:
             server_port=self._server_port,
         ) as span:
             if span.is_recording():
-                span.set_attribute(STORAGE_OBJECT_KEY, key)
+                span.set_attribute("storage.object", key)
             try:
                 yield
             except Exception as e:
